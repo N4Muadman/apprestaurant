@@ -1,4 +1,3 @@
-// Header.js
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -16,7 +15,12 @@ const Header = ({ onNotificationPress }) => {
       </View>
 
       <TouchableOpacity onPress={onNotificationPress} style={styles.notification}>
-        <Icon name="bell-o" size={24} color="#000" />
+        <Image
+          source={{ 
+            uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhxOCMMODh9L9iJ2NfEORL0bR5lEuxCjujlQ&s'
+           }} 
+          style={{ width: 20, height: 20 }}
+        />
         <View style={styles.notificationDot} />
       </TouchableOpacity>
     </View>

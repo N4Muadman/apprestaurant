@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Image, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { View, Image, Text, StyleSheet, TextInput, TouchableOpacity, Linking } from 'react-native';
 import { API_BASE_URL } from '../../../constants/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -49,6 +49,12 @@ const LoginScreen = ({navigation}) => {
         }
     }
 
+
+
+    const handleLoginGoogle = async () => {
+        const googleAuthUrl = 'https://accounts.google.com/o/oauth2/auth/oauthchooseaccount?client_id=73538780194-h6igvbabsro7utaqrbano4c20p9s4kln.apps.googleusercontent.com&redirect_uri=https%3A%2F%2Fmtinvest.com.vn%2Fapi%2Fauth%2Fgoogle%2Fcallback&scope=openid%20profile%20email&response_type=code&prompt=select_account&service=lso&o2v=1&ddm=1&flowName=GeneralOAuthFlow';
+        await Linking.openURL(googleAuthUrl);
+    };
     return (
         <View style={styles.container}>
             <View style={styles.centeredView}>
@@ -83,6 +89,11 @@ const LoginScreen = ({navigation}) => {
                 <TouchableOpacity style={styles.button} 
                 onPress={() => handleLogin()}>
                     <Text style={styles.buttonText}>Đăng nhập</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.button} 
+                onPress={() => handleLoginGoogle()}>
+                    <Text style={styles.buttonText}>Đăng nhập bằng google</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -123,6 +134,7 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         justifyContent: 'center',
         alignItems: 'center',
+        marginTop: 10
     },
     buttonText: {
         color: 'white',

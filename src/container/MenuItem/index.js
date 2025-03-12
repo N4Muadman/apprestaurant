@@ -2,13 +2,16 @@ import { Alert, FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, 
 import React, { useState, useEffect } from 'react';
 import { API_BASE_URL, BASE_URL } from '../../constants/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
-const MenuItem = ({route}) => {
+const MenuItem = ({route, navigation}) => {
   const table = route.params.item;
+  const update = route.params.update;
   const [Categories, setCategories] = useState();
   const [MenuItems, setMenuItems] = useState();
   const [searchText, setSearchText] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [carts, setCarts] = useState([]);
 
   const getMenuItem = async (name, category) => {
     const token = await AsyncStorage.getItem('token');
@@ -85,6 +88,25 @@ const MenuItem = ({route}) => {
     getMenuItem(searchText, category.keySeach);
   };
 
+  const handleAddToCart = (menuItem) => {
+    setCarts((prevCarts) => {
+      const existingItem = prevCarts.find((cartItem) => cartItem.id === menuItem.id);
+  
+      if (existingItem) {
+        return prevCarts.map((cartItem) =>
+          cartItem.id === menuItem.id
+            ? { ...cartItem, quantity: cartItem.quantity + 1, totalPrice: menuItem.price * (cartItem.quantity + 1)}
+            : cartItem
+        );
+      } else {
+        return [...prevCarts, { ...menuItem, quantity: 1, totalPrice: menuItem.price}];
+      }
+    });
+  };
+
+
+
+
   const paddedMenuItems = MenuItems && MenuItems.length % 2 !== 0 ? [...MenuItems, { id: 'empty', table_number: '' }] : MenuItems;
 
   const formatCurrency = (amount) => {
@@ -111,17 +133,28 @@ const MenuItem = ({route}) => {
     if (item.id === 'empty') {
       return <TouchableOpacity style={{ width: '50%' }} />;
     }
+    const isStopped = item.status === 1;
     return (
-      <TouchableOpacity style={styles.menuItemWrapper}>
-      <View style={styles.menuItem}>
-        <Image 
-          source={{ uri: `${BASE_URL + item.img}` }} 
-          style={styles.menuItemImg} 
-        />
-        <Text style={styles.menuItemName}>{item.name}</Text>
-        <Text style={styles.menuItemPrice}>{formatCurrency(item.price)}</Text>
+      <View style={styles.menuItemWrapper}>
+          {isStopped && (
+            <View style={styles.overlay}>
+              <Text style={styles.overlayText}>Đồ ăn đã dừng chế biến trong hôm nay</Text>
+            </View>
+          )}
+          
+          <TouchableOpacity 
+            style={styles.menuItem} 
+            onPress={() => !isStopped && handleAddToCart(item)}
+            disabled={isStopped}
+            >
+            <Image 
+                source={{ uri: `${BASE_URL + item.img}` }} 
+                style={styles.menuItemImg} 
+              />
+              <Text style={styles.menuItemName}>{item.name}</Text>
+              <Text style={styles.menuItemPrice}>{formatCurrency(item.price)}</Text>
+        </TouchableOpacity>
       </View>
-    </TouchableOpacity>
     )
   }
 
@@ -155,6 +188,18 @@ const MenuItem = ({route}) => {
           columnWrapperStyle={styles.columnWrapperMenuItem}
         />
       </View>
+      <View style={styles.cartContainer}>
+        <Text style={styles.cartQuantity}>{carts.length}</Text>
+        <TouchableOpacity style={styles.cart} onPress={() => {
+          navigation.navigate('Cart', {carts: carts, table: table, update: update});
+        }}>
+          <Image source={{ 
+            uri: 'https://banner2.cleanpng.com/20181201/kos/kisspng-scalable-vector-graphics-computer-icons-portable-n-daily-general-merchandise-svg-png-icon-free-downlo-5c02b1c90f0b77.6734633715436804570616.jpg'
+           }}
+           style={styles.cartImg}
+           />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -162,6 +207,51 @@ const MenuItem = ({route}) => {
 export default MenuItem;
 
 const styles = StyleSheet.create({
+  cartContainer:{
+    width: 47,
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)', 
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
+  },
+  overlayText: {
+    color: '#fff',
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  cartQuantity:{
+    fontSize: 18,
+    color: '#d74011',
+    position: 'absolute',
+    right: 0,
+    top: -15,
+  },
+  cart:{
+    padding: 10,
+    borderColor: "#d74011",
+    borderWidth: 2,
+    borderRadius: '50%',
+    shadowColor: '#000',
+    shadowOpacity: 1,
+    shadowRadius: 8,
+    elevation: 5,
+    shadowOffset: { width: 0, height: 2 },
+    backgroundColor: '#fff',
+  },
+  cartImg:{
+    width: 22,
+    height: 24
+  },
   Textinput: {
     paddingHorizontal: 20,
     borderRadius: 10,
