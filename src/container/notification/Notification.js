@@ -63,7 +63,7 @@ const Notification = ({ navigation }) => {
         )}
       />
 
-      <TouchableOpacity style={styles.btnBack} onPress={() => navigation.goBack()}>
+      <TouchableOpacity style={styles.btnBack} onPress={() => navigation.navigate('Login')}>
         <Text style={{ textAlign: 'center', color: 'white', fontSize: 16 }}>QUAY LẠI</Text>
       </TouchableOpacity>
     </View>
